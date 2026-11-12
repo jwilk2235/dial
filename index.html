@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Call or text</title>
+<style>
+  :root { --bg: #fafaf9; --fg: #1c1917; --muted: #57534e; --ink: #1c1917; --on-ink: #fafaf9; --line: #d6d3d1; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #161615; --fg: #f5f5f4; --muted: #a8a29e; --ink: #f5f5f4; --on-ink: #161615; --line: #44403c; } }
+  body { margin: 0; padding: 40px 20px; background: var(--bg); color: var(--fg); font: 17px/1.4 -apple-system, system-ui, "Segoe UI", sans-serif; }
+  main { max-width: 360px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+  #num { font-size: 28px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; margin: 0 0 8px; }
+  a.btn { display: block; text-align: center; padding: 16px; border-radius: 999px; text-decoration: none; font-weight: 600; background: var(--ink); color: var(--on-ink); }
+  a.btn.quiet { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  p { color: var(--muted); text-align: center; margin: 8px 0 0; font-size: 15px; }
+</style>
+</head>
+<body>
+<main>
+  <p id="num"></p>
+  <a class="btn" id="call" href="#">Call</a>
+  <a class="btn quiet" id="text" href="#">Text</a>
+  <p id="note">When you're done, close this tab to get back to Jake's Network.</p>
+</main>
+<script>
+// Jake's Network can't open the Phone or Messages app from inside Claude, so its Call and Text buttons open this page,
+// which can. The number travels after the # in the link (#tel=+13125550100 or #sms=+13125550100); browsers never send
+// that part to the server, and this page stores nothing.
+(function () {
+  var m = /^(tel|sms)=(\+\d{8,15})$/.exec(location.hash.slice(1));
+  var num = document.getElementById('num');
+  if (!m) { num.textContent = 'No number in this link.'; document.getElementById('call').remove(); document.getElementById('text').remove(); return; }
+  var n = m[2];
+  num.textContent = n.indexOf('+1') === 0 && n.length === 12 ? '(' + n.slice(2, 5) + ') ' + n.slice(5, 8) + '-' + n.slice(8) : n;
+  document.getElementById('call').href = 'tel:' + n;
+  document.getElementById('text').href = 'sms:' + n;
+  location.replace((m[1] === 'sms' ? 'sms:' : 'tel:') + n);
+})();
+</script>
+</body>
+</html>
